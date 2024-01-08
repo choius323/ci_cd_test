@@ -22,7 +22,7 @@ jobs:
 
       - name: Generate Keystore file from Github Secrets
         run: |
-          echo $KEYSTORE | base64 -d > ./android.keystore
+          echo $KEYSTORE | base64 -di > ./android.keystore
         env:
           KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
       - name: Grant execute permission for gradlew
