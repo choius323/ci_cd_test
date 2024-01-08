@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -28,10 +28,16 @@ jobs:
   unit-test:
     name: Perform Unit Testing
   #    needs: [ lint ]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
   
       - name: Run tests
         run: ./gradlew test
+        
+      - name: Upload test report
+        uses: asadmansr/android-test-report-action@v1.2.0
+        with:
+          name: unit_test_report
+          path: app/build/reports/test/testDebugUnitTest/
