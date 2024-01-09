@@ -18,10 +18,10 @@ android {
     }
     signingConfigs {
         create("config") {
-            keyAlias = System.getenv("KEY_ALIAS").toString()
-            keyPassword = System.getenv("KEY_PASSWORD").toString()
+            keyAlias = providers.systemProperty("KEY_ALIAS").get().toString()
+            keyPassword = providers.systemProperty("KEY_PASSWORD").get().toString()
             storeFile = file("../android.keystore")
-            storePassword = System.getenv("KEYSTORE_PASSWORD").toString()
+            storePassword = providers.systemProperty("KEYSTORE_PASSWORD").get().toString()
         }
     }
     buildTypes {
