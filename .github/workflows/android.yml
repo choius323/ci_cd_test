@@ -15,6 +15,9 @@ jobs:
           echo "KEYSTORE_PASSWORD variable : $KEYSTORE_PASSWORD"
           echo "KEY_ALIAS variable : $KEY_ALIAS"
           echo "KEY_PASSWORD variable : $KEY_PASSWORD"
+          KEYSTORE_PASSWORD=${{ vars.KEYSTORE_PASSWORD }}
+          KEY_ALIAS=${{ vars.KEY_ALIAS }}
+          KEY_PASSWORD=${{ vars.KEY_PASSWORD }}
         env:
           KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ vars.KEY_ALIAS }}
@@ -82,8 +85,8 @@ jobs:
     strategy:
       matrix:
         api-level: [ 34 ]
-        target: [ default, google_apis ]
-        arch: [ x86_64, x86 ]
+        target: [ default ]
+        arch: [ x86_64 ]
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
@@ -103,28 +106,6 @@ jobs:
           KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ vars.KEY_ALIAS }}
           KEY_PASSWORD: ${{ vars.KEY_PASSWORD }}
-      
-
-      - name: AVD cache
-        uses: actions/cache@v3
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-${{ matrix.api-level }}
-
-      - name: Create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.target }}
-          arch: ${{ matrix.arch }}
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
-          script: echo "Generated AVD snapshot for caching."
 
       - name: Run espresso tests
         uses: reactivecircus/android-emulator-runner@v2 # 3rd party tool
