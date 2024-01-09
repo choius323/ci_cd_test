@@ -42,6 +42,7 @@ jobs:
           export KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD"
           export KEY_ALIAS="$KEY_ALIAS"
           export KEY_PASSWORD="$KEY_PASSWORD"
+          env
         env:
           KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ vars.KEY_ALIAS }}
