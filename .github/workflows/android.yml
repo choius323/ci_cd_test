@@ -30,7 +30,7 @@ jobs:
       - name: remove cache gradle
         run: ./gradlew --stop
       - name: Build with Gradle
-        run: ./gradlew -KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} -KEY_ALIAS=${{ secrets.KEY_ALIAS }} -KEY_PASSWORD=${{ secrets.KEY_PASSWORD }} build
+        run: ./gradlew --args='KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} KEY_ALIAS=${{ secrets.KEY_ALIAS }} KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}' build
 
   unit-test:
     name: Perform Unit Testing
