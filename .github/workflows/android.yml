@@ -33,7 +33,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+          # cache: gradle
       - name: Use variables
         run: |
           echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
@@ -52,10 +52,12 @@ jobs:
           echo $KEYSTORE | base64 -d -i > ./android.keystore
         env:
           KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+      # - name: Setup Gradle
+      #   uses: gradle/gradle-build-action@v2
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: remove cache gradle
+        run: ./gradlew --stop
       - name: Build with Gradle
         run: ./gradlew build
 
@@ -96,13 +98,14 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
-      - name: Gradle cache
-        uses: gradle/gradle-build-action@v2
+      # - name: Gradle cache
+      #   uses: gradle/gradle-build-action@v2
       - name: Set up Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '17'
+          cache: gradle
       - name: Use variables
         run: |
           echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
