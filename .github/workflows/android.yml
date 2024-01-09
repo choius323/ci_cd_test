@@ -48,8 +48,7 @@ jobs:
           KEY_PASSWORD: ${{ vars.KEY_PASSWORD }}
       - name: Generate Keystore file from Github Secrets
         run: |
-          echo $KEYSTORE | base64 -di > ./android.keystore
-          echo "$KEYSTORE"
+          echo $KEYSTORE | base64 -d -i > ./android.keystore
         env:
           KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
       - name: Grant execute permission for gradlew
@@ -112,8 +111,7 @@ jobs:
           KEY_PASSWORD: ${{ vars.KEY_PASSWORD }}
       - name: Generate Keystore file from Github Secrets
         run: |
-          echo $KEYSTORE | base64 -di > ./android.keystore
-          echo "$KEYSTORE"
+          echo $KEYSTORE | base64 -d -i > ./android.keystore
         env:
           KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
 
