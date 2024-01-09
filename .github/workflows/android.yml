@@ -96,3 +96,29 @@ jobs:
             -PKEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
             -PKEY_ALIAS=${{ secrets.KEY_ALIAS }}
             -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+
+  publish-app:
+    name: Publish to Play Store
+    needs: [ build, instrumentation-test ]  
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Build Release AAB
+        run: ./gradlew app:bundleRelease
+      - name: Deploy to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: your.app.package
+          releaseFiles: app/build/outputs/bundle/release/*.aab
+          track: internal
+      - name: action-slack
+        uses: 8398a7/action-slack@v3
+        with:
+         status: ${{ job.status }}
+         #author_name: android - dev
+         fields: repo,commit,message,author # action,eventName,ref,workflow,job,took 추가할 수 있음
+         #mention: here
+         #if_mention: failure,cancelled
+        env:
+         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
