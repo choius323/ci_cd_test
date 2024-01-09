@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: Use variables
         run: |
-          echo "KEYSTORE_PASSWORD variable : $KEYSTORE_PASSWORD"
-          echo "KEY_ALIAS variable : $KEY_ALIAS"
-          echo "KEY_PASSWORD variable : $KEY_PASSWORD"
+          echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+          echo "KEY_ALIAS=$KEY_ALIAS"
+          echo "KEY_PASSWORD=$KEY_PASSWORD"
           export KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD"
           export KEY_ALIAS="$KEY_ALIAS"
           export KEY_PASSWORD="$KEY_PASSWORD"
@@ -36,9 +36,9 @@ jobs:
           cache: gradle
       - name: Use variables
         run: |
-          echo "KEYSTORE_PASSWORD variable : $KEYSTORE_PASSWORD"
-          echo "KEY_ALIAS variable : $KEY_ALIAS"
-          echo "KEY_PASSWORD variable : $KEY_PASSWORD"
+          echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+          echo "KEY_ALIAS=$KEY_ALIAS"
+          echo "KEY_PASSWORD=$KEY_PASSWORD"
           export KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD"
           export KEY_ALIAS="$KEY_ALIAS"
           export KEY_PASSWORD="$KEY_PASSWORD"
@@ -105,9 +105,9 @@ jobs:
           java-version: '17'
       - name: Use variables
         run: |
-          echo "KEYSTORE_PASSWORD variable : $KEYSTORE_PASSWORD"
-          echo "KEY_ALIAS variable : $KEY_ALIAS"
-          echo "KEY_PASSWORD variable : $KEY_PASSWORD"
+          echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+          echo "KEY_ALIAS=$KEY_ALIAS"
+          echo "KEY_PASSWORD=$KEY_PASSWORD"
         env:
           KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ vars.KEY_ALIAS }}
