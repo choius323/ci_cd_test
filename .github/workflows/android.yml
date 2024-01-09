@@ -7,10 +7,22 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  env-set:
     runs-on: ubuntu-20.04
-
+    steps:
+      - name: Use variables
+        run: |
+          echo "repository variable : $REPOSITORY_VAR"
+          echo "organization variable : $ORGANIZATION_VAR"
+          echo "overridden variable : $OVERRIDE_VAR"
+        env:
+          KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ vars.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ vars.KEY_PASSWORD }}
+        
+  build:
+    runs-on: ubuntu-20.04
+    needs: [ env-set ]
     steps:
       - uses: actions/checkout@v4
       - name: set up JDK 17
@@ -32,6 +44,7 @@ jobs:
 
   unit-test:
     name: Perform Unit Testing
+    needs: [ env-set ]
     #    needs: [ lint ]
     runs-on: ubuntu-20.04
     steps:
@@ -57,7 +70,12 @@ jobs:
   instrumentation-test:
     name: Perform Instrumentation Testing
     needs: [ unit-test ]
-    runs-on: macos-11 # MacOS runs faster
+    runs-on: macos-latest # MacOS runs faster
+    strategy:
+      matrix:
+        api-level: [21, 33]
+        target: [google_apis]
+        arch: [x86_64]
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
