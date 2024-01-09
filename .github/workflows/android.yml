@@ -112,6 +112,11 @@ jobs:
           cache: gradle
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Generate Keystore file from Github Secrets
+        run: |
+          echo $KEYSTORE | sed 's/[^A-Za-z0-9+/=]//g' | base64 -d > ./android.keystore
+        env:
+          KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
       - name: Build Release AAB
         run: ./gradlew app:bundleRelease
             -PKEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
