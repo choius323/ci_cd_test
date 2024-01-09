@@ -1,10 +1,10 @@
-package com.example.ci_cd_test
+package com.tenqube.ci_cd_test
 
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import com.example.ci_cd_test.databinding.ActivityMainBinding
+import com.tenqube.ci_cd_test.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private val viewModel by viewModels<MainViewModel>()

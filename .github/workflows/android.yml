@@ -118,7 +118,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
-          packageName: com.example.ci_cd_test
+          packageName: com.tenqube.ci_cd_test
           releaseFiles: app/build/outputs/bundle/release/*.aab
           track: internal
       - name: action-slack

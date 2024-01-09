@@ -1,4 +1,4 @@
-package com.example.ci_cd_test
+package com.tenqube.ci_cd_test
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

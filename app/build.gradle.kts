@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.ci_cd_test"
+    namespace = "com.tenqube.ci_cd_test"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.ci_cd_test"
+        applicationId = "com.tenqube.ci_cd_test"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -16,11 +16,17 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        create("config") {
+            keyAlias = System.getenv("KEY_ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+            storeFile = file("../android.keystore")
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+        }
+    }
     buildTypes {
-        println(
-             "KEY_ALIAS" + System.getenv("KEY_ALIAS").isNullOrEmpty() + "  KEY_PASSWORDD" + System.getenv("KEY_PASSWORDD").isNullOrEmpty()
-        )
         debug {
+            signingConfig = signingConfigs.getByName("config")
         }
         release {
             isMinifyEnabled = false
@@ -28,6 +34,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("config")
         }
     }
     compileOptions {
