@@ -17,7 +17,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          # cache: gradle
+          cache: gradle
       - name: Generate Keystore file from Github Secrets
         run: |
           echo $KEYSTORE | base64 -d -i > ./android.keystore
@@ -30,10 +30,7 @@ jobs:
       - name: remove cache gradle
         run: ./gradlew --stop
       - name: Build with Gradle
-        run: ./gradlew build
-            -KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
-            -KEY_ALIAS=${{ secrets.KEY_ALIAS }}
-            -KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew -KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} -KEY_ALIAS=${{ secrets.KEY_ALIAS }} -KEY_PASSWORD=${{ secrets.KEY_PASSWORD }} build
 
   unit-test:
     name: Perform Unit Testing
