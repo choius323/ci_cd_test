@@ -114,6 +114,9 @@ jobs:
         run: chmod +x gradlew
       - name: Build Release AAB
         run: ./gradlew app:bundleRelease
+            -PKEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+            -PKEY_ALIAS=${{ secrets.KEY_ALIAS }}
+            -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
       - name: Deploy to Play Store
         uses: r0adkll/upload-google-play@v1
         with:
