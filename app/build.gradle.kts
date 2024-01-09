@@ -18,7 +18,7 @@ android {
     }
     buildTypes {
         println(
-            "KEY_ALIAS" + System.getenv("KEY_ALIAS").isNullOrEmpty() + "  KEY_PASSWORD" + System.getenv("KEY_PASSWORD").isNullOrEmpty()
+            System.getenv()
         )
         debug {
         }
