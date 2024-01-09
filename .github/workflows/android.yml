@@ -19,9 +19,9 @@ jobs:
           export KEY_ALIAS="$KEY_ALIAS"
           export KEY_PASSWORD="$KEY_PASSWORD"
         env:
-          KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ vars.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ vars.KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         
   build:
     runs-on: ubuntu-20.04
@@ -112,9 +112,9 @@ jobs:
           echo "KEY_ALIAS=$KEY_ALIAS"
           echo "KEY_PASSWORD=$KEY_PASSWORD"
         env:
-          KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ vars.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ vars.KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       - name: Generate Keystore file from Github Secrets
         run: |
           echo $KEYSTORE | sed 's/[^A-Za-z0-9+/=]//g' | base64 -d > ./android.keystore
