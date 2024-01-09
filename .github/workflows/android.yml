@@ -7,25 +7,9 @@ on:
     branches: [ "main" ]
 
 jobs:
-  env-set:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Use variables
-        run: |
-          echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
-          echo "KEY_ALIAS=$KEY_ALIAS"
-          echo "KEY_PASSWORD=$KEY_PASSWORD"
-          export KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD"
-          export KEY_ALIAS="$KEY_ALIAS"
-          export KEY_PASSWORD="$KEY_PASSWORD"
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         
   build:
     runs-on: ubuntu-20.04
-    needs: [ env-set ]
     steps:
       - uses: actions/checkout@v4
       - name: set up JDK 17
@@ -34,19 +18,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           # cache: gradle
-      - name: Use variables
-        run: |
-          echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
-          echo "KEY_ALIAS=$KEY_ALIAS"
-          echo "KEY_PASSWORD=$KEY_PASSWORD"
-          export KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD"
-          export KEY_ALIAS="$KEY_ALIAS"
-          export KEY_PASSWORD="$KEY_PASSWORD"
-          env
-        env:
-          KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ vars.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ vars.KEY_PASSWORD }}
       - name: Generate Keystore file from Github Secrets
         run: |
           echo $KEYSTORE | base64 -d -i > ./android.keystore
@@ -59,11 +30,13 @@ jobs:
       - name: remove cache gradle
         run: ./gradlew --stop
       - name: Build with Gradle
-        run: KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD" KEY_ALIAS="$KEY_ALIAS" "KEY_PASSWORD=$KEY_PASSWORD" ./gradlew build
+        run: ./gradlew build
+            - KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+            - KEY_ALIAS=${{ secrets.KEY_ALIAS }}
+            - KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
 
   unit-test:
     name: Perform Unit Testing
-    needs: [ env-set ]
     #    needs: [ lint ]
     runs-on: ubuntu-20.04
     steps:
@@ -106,15 +79,6 @@ jobs:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '17'
           cache: gradle
-      - name: Use variables
-        run: |
-          echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
-          echo "KEY_ALIAS=$KEY_ALIAS"
-          echo "KEY_PASSWORD=$KEY_PASSWORD"
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       - name: Generate Keystore file from Github Secrets
         run: |
           echo $KEYSTORE | sed 's/[^A-Za-z0-9+/=]//g' | base64 -d > ./android.keystore
@@ -128,3 +92,6 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           script: ./gradlew connectedCheck
+            - KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+            - KEY_ALIAS=${{ secrets.KEY_ALIAS }}
+            - KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
