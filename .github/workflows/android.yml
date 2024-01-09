@@ -110,6 +110,12 @@ jobs:
           KEYSTORE_PASSWORD: ${{ vars.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ vars.KEY_ALIAS }}
           KEY_PASSWORD: ${{ vars.KEY_PASSWORD }}
+      - name: Generate Keystore file from Github Secrets
+        run: |
+          echo $KEYSTORE | base64 -di > ./android.keystore
+          echo "$KEYSTORE"
+        env:
+          KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
 
       - name: Run espresso tests
         uses: reactivecircus/android-emulator-runner@v2 # 3rd party tool
