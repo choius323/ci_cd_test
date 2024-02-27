@@ -1,142 +1,87 @@
 name: Android CI
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
+  push:
     branches: [ "main" ]
 
 jobs:
-        
   build:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
+
       - name: set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 17
+          distribution: 'zulu'
           cache: gradle
-      - name: Generate Keystore file from Github Secrets
-        run: |
-          echo $KEYSTORE | base64 -d -i > ./android.keystore
-        env:
-          KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Build with Gradle
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        run: ./gradlew build
 
-  unit-test:
-    name: Perform Unit Testing
-    #    needs: [ lint ]
+      - name: Build debug apk
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload debug apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: ./app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Build test apk
+        run: ./gradlew assembleDebugAndroidTest
+
+      - name: Upload test apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-androidTest
+          path: ./app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+
+      - name: Upload build reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: ./app/build/reports
+
+  firebase_test:
+    needs: [ build ]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
+
       - name: set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 17
+          distribution: 'zulu'
           cache: gradle
 
-      - name: Checkout the code
-        uses: actions/checkout@v4
-      - name: Run tests
-        run: ./gradlew test
+      - name: Download app APK
+        uses: actions/download-artifact@v3
+        with:
+          path: ./app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Upload test report
-        uses: asadmansr/android-test-report-action@v1.2.0
+      - name: Download Android test APK
+        uses: actions/download-artifact@v3
         with:
-          name: unit_test_report
-          path: app/build/reports/test/testDebugUnitTest/
+          path: ./app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 
-  instrumentation-test:
-    name: Perform Instrumentation Testing
-    needs: [ unit-test ]
-    runs-on: macos-latest # MacOS runs faster
-    strategy:
-      matrix:
-        api-level: [ 34 ]
-        target: [ default ]
-        arch: [ x86_64 ]
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v4
-      - name: Gradle cache
-        uses: gradle/gradle-build-action@v2
-      - name: Set up Java JDK 17
-        uses: actions/setup-java@v4
+      - id: 'auth'
+        name: Login to Google CLoud
+        uses: 'google-github-actions/auth@v2'
         with:
-          distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '17'
-          cache: gradle
-      - name: Generate Keystore file from Github Secrets
-        run: |
-          echo $KEYSTORE | sed 's/[^A-Za-z0-9+/=]//g' | base64 -d > ./android.keystore
-        env:
-          KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-      - name: Run espresso tests
-        uses: reactivecircus/android-emulator-runner@v2 # 3rd party tool
+      - uses: 'google-github-actions/setup-gcloud@v2'
         with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.target }}
-          arch: ${{ matrix.arch }}
-          script: ./gradlew connectedCheck
-            -PKEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
-            -PKEY_ALIAS=${{ secrets.KEY_ALIAS }}
-            -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          version: '>= 465.0.0'
 
-  publish-app:
-    name: Publish to Play Store
-    #needs: [ build, instrumentation-test ]  
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v4
-      - name: Gradle cache
-        uses: gradle/gradle-build-action@v2
-      - name: Set up Java JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '17'
-          cache: gradle
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Generate Keystore file from Github Secrets
-        run: |
-          echo $KEYSTORE | sed 's/[^A-Za-z0-9+/=]//g' | base64 -d > ./android.keystore
-        env:
-          KEYSTORE: ${{ secrets.APP_KEYSTORE_BASE64 }}
-      - name: Build Release AAB
-        run: ./gradlew app:bundleRelease
-            -PKEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
-            -PKEY_ALIAS=${{ secrets.KEY_ALIAS }}
-            -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
-      - name: Deploy to Play Store
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
-          packageName: com.tenqube.ci_cd_test
-          releaseFiles: app/build/outputs/bundle/release/*.aab
-          track: internal
-      - name: action-slack
-        uses: 8398a7/action-slack@v3
-        with:
-         status: ${{ job.status }}
-         #author_name: android - dev
-         fields: repo,commit,message,author # action,eventName,ref,workflow,job,took 추가할 수 있음
-         #mention: here
-         #if_mention: failure,cancelled
-        env:
-         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        #if: always() # Pick up events even if the job fails or is canceled.
+      - name: Set current project
+        run: gcloud config set project ${{ secrets.FIREBASE_PROJECT_ID }}
+
+      - name: Run Instrumentation Tests in Firebase Test Lab
+        run: gcloud firebase test android run --type instrumentation --app ./app/build/outputs/apk/debug/app-debug.apk --test ./app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk --device model=b0q,version=33,locale=en,orientation=portrait
