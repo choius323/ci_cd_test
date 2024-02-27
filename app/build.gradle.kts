@@ -16,13 +16,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    signingConfigs {
-        create("config") {
-        }
-    }
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("config")
         }
         release {
             isMinifyEnabled = false
@@ -30,7 +25,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("config")
         }
     }
     compileOptions {
