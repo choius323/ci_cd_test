@@ -72,12 +72,14 @@ jobs:
       - name: Download app APK
         uses: actions/download-artifact@v3
         with:
-          path: ./app/build/outputs/apk/debug/app-debug.apk
+          name: app-debug
+          path: ./apks/app-debug.apk
 
       - name: Download Android test APK
         uses: actions/download-artifact@v3
         with:
-          path: ./app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          name: app-debug-androidTest
+          path: ./apks/app-debug-androidTest.apk
 
       - id: 'auth'
         name: Login to Google CLoud
@@ -93,4 +95,4 @@ jobs:
         run: gcloud config set project ${{ secrets.FIREBASE_PROJECT_ID }}
 
       - name: Run Instrumentation Tests in Firebase Test Lab
-        run: gcloud firebase test android run --type instrumentation --app ./app/build/outputs/apk/debug/app-debug.apk --test ./app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk --device model=b0q,version=33,locale=en,orientation=portrait
+        run: gcloud firebase test android run --type instrumentation --app ./apks/app-debug.apk --test ./apks/app-debug-androidTest.apk --device model=b0q,version=33,locale=en,orientation=portrait
